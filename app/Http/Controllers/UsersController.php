@@ -34,7 +34,6 @@ class UsersController extends Controller
     {
         $roles = Role::pluck('title', 'id');
         $films = Films::pluck('movie_name', 'id');
-
        // print_r(  $films);
         return view('admin.users.create', compact('roles'), compact('films'));
     }
@@ -55,22 +54,14 @@ class UsersController extends Controller
                 'email'            => 'required|email|unique:users',      
                 'password'         => 'required' 
         );
- 
         $validator = Validator::make($request->all(), $rules);
-
         // if the validator fails, redirect back to the form
-        if ($validator->fails()) {
-           
-            return redirect()->route('users.index')->withMessage("Validation error!!");
-           
-
-        } else {
-
-           
+        if ($validator->fails()) {           
+            return redirect()->route('users.index')->withMessage("Validation error!!");           
+        } else {         
             $input['password'] = Hash::make($input['password']);
             $input['verification_code'] = Hash::make($input['password']);
-            $user = User::create($input);
-           
+            $user = User::create($input);       
             if(isset($input['film_id'])){
                 foreach($input['film_id'] as $selected_id){
                     $film = Films::findOrFail($selected_id);
@@ -81,9 +72,7 @@ class UsersController extends Controller
 
             $fusionMail = new FusionMail( $user);
             $send =    Mail::to($input['email'])->send( $fusionMail);
-
             var_dump( Mail:: failures());
-
             return redirect()->route('users.index')->withMessage(trans('quickadmin::admin.users-controller-successfully_created'));
 
         }
@@ -99,22 +88,12 @@ class UsersController extends Controller
     public function edit($id)
     {
         $user  = User::findOrFail($id);
-
-
         $roles = Role::pluck('title', 'id');
-
         $films = Films::pluck('movie_name', 'id');
-
-
-
         $selectedfilms  = DB::table('user_films')
         ->where('user_id', $user->id)->get()->pluck('movie_id');
-
         $selected = array_values((array)$selectedfilms);
-
-
         $selected = $selected[0] ;
-
         return view('admin.users.edit', compact('user', 'roles','films','selected'));
     }
 
@@ -161,9 +140,6 @@ class UsersController extends Controller
             }
         }
 
-
-
-
         return redirect()->route('users.index')->withMessage(trans('quickadmin::admin.users-controller-successfully_updated'));
     }
 
@@ -178,7 +154,6 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         User::destroy($id);
-
         return redirect()->route('users.index')->withMessage(trans('quickadmin::admin.users-controller-successfully_deleted'));
     }
 }
